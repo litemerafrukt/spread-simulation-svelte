@@ -1,6 +1,6 @@
 <script>
   export let personService
-  import { worldProps, personProps } from "./machines/props"
+  import { worldProps, personProps, colors } from "./machines/props"
   import { readState } from "./readMachine";
 
   let x = 20
@@ -12,7 +12,7 @@
   $: if ($state) {
     x = $state.context.x
     y = $state.context.y
-    fill = $state.value === 'infected' ? '#ff3e00' : '#aaa'
+    fill = colors[$state.value] || "#aaa"
   }
 </script>
 

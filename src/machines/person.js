@@ -1,11 +1,11 @@
 import { Machine, assign } from "xstate"
-import { worldProps, personProps } from "./props"
+import { worldProps, personProps, sicknessProps } from "./props"
 
 export function createPerson(id) {
   return Machine(
     {
       id: `person-${id}`,
-      context: { x: 0, y: 0 },
+      context: { x: 0, y: 0, movement: 1 },
       initial: "notInfected",
       states: {
         notInfected: {
@@ -15,7 +15,28 @@ export function createPerson(id) {
             },
           },
         },
-        infected: {},
+        infected: {
+          after: {
+            [sicknessProps.preContagious]: "contagious",
+          },
+        },
+        contagious: {
+          after: {
+            [sicknessProps.contagious]: "sick",
+          },
+        },
+        sick: {
+          entry: "beStill",
+          after: {
+            [sicknessProps.sick]: "immune",
+          },
+        },
+        immune: {
+          entry: "startMoving",
+          after: {
+            [sicknessProps.immune]: "notInfected",
+          },
+        },
       },
       on: {
         TICK: {
@@ -26,14 +47,20 @@ export function createPerson(id) {
     {
       actions: {
         idling: assign({
-          x: ({ x }) => {
-            const newX = x + Math.random() * 3 * (Math.random() < 0.5 ? -1 : 1)
+          x: ({ x, movement }) => {
+            const newX = x + Math.random() * movement * (Math.random() < 0.5 ? -1 : 1)
             return Math.min(Math.max(newX, 0), worldProps.width - personProps.height)
           },
-          y: ({ y }) => {
-            const newY = y + Math.random() * 3 * (Math.random() < 0.5 ? -1 : 1)
+          y: ({ y, movement }) => {
+            const newY = y + Math.random() * movement * (Math.random() < 0.5 ? -1 : 1)
             return Math.min(Math.max(newY, 0), worldProps.height - personProps.height)
           },
+        }),
+        beStill: assign({
+          movement: () => 0.3,
+        }),
+        startMoving: assign({
+          movement: () => Math.random() * 3,
         }),
       },
     }
