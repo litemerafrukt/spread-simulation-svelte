@@ -2,6 +2,8 @@
 
 Oh, the times. Everybody needs a sickness simulator.
 
+Built mainly to play around with xstate and svelt.
+
 ---
 
 # svelte app
